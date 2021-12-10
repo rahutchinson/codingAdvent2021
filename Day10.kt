@@ -2,6 +2,8 @@
  * You can edit, run, and share this code. 
  * play.kotlinlang.org 
  */
+import kotlin.math.abs
+
 var input = """{[[<[({{[<[[[[<>()]{[][]}][[<>[]]([])]]]{({[[]()]<()<>>}[[()()]<{}()>])<{<[]<>><{}{}>}[<()<>>{[]()}]>}
 [[<{(<{(<<{[[[{}[]]({}<>)]([[]<>][()()])](({<>}[<><>]))}><{({(<>{})<<>{}>}[[{}{}]<()<>>])(((()<>)({}{})){
 (<[<[[[<(<{[{<[][]>({}())}({<>{}})]({{<>{}}{{}[]}}<[{}()](<>)>)}(<[[{}{}]({}{})]{{{}<>}}>{{{()
@@ -93,8 +95,19 @@ var input = """{[[<[({{[<[[[[<>()]{[][]}][[<>[]]([])]]]{({[[]()]<()<>>}[[()()]<{
 {<{<{{([(({[{<<>[]>(<>())}(({}<>)<<>>)](<{{}{}}<{}{}>>[{()()}[<><>]])})[[<<({}{})[{}[]]>[<{}{}>({}
 ((<(([{[[<[<{({}{})<{}[]>}{[[]<>][()[]]}>[((<>{})(<><>)){<{}()>(<>{})}]]>(({({<>[]}[{}<>]]<[<>"""
 
+var input_small = """[({(<(())[]>[[{[]{<()<>>
+[(()[<>])]({[<{<<[]>>(
+{([(<{}[<>[]}>{[]{[(<()>
+(((({<>}<{<{<>}{[]{[]{}
+[[<[([]))<([[{}[[()]]]
+[{[{({}]{}}([{[{{{}}([]
+{<[[]]>}<{[{[{[]{()[[[]
+[<(<(<(<{}))><([]([]()
+<{([([[(<>()){}]>(<<{{
+<{([{{}}[<[[[<>{}]]]>[]]"""
+
 fun main() {
-    var input_array = input.split("\n")
+	var input_array = input.split("\n")
 	val incomplete_list : MutableList<String> = mutableListOf()
     var totalScore = 0
     for(line in input_array) {
@@ -109,7 +122,8 @@ fun main() {
     for(line in incomplete_list) {
         score_list.add(incomplete_finishing(line))
     }
-    println(score_list)
+    score_list.sort()
+    println(score_list[23])
 }
 
 fun incomplete_finishing(incompleteLine: String):Int {
@@ -122,10 +136,10 @@ fun incomplete_finishing(incompleteLine: String):Int {
     
     var pointMappings : HashMap<Char, Int>
     = HashMap<Char,Int> ()
-    pointMappings.put(')', 1)
-    pointMappings.put(']', 2)
-    pointMappings.put('}', 3)
-    pointMappings.put('>', 4)
+    pointMappings.put('(', 1)
+    pointMappings.put('[', 2)
+    pointMappings.put('{', 3)
+    pointMappings.put('<', 4)
     
     var stack = ArrayDeque<Char>()
     var score = 0
@@ -134,20 +148,20 @@ fun incomplete_finishing(incompleteLine: String):Int {
             stack.removeFirst()
         } else {
             if(incompleteLine[i] in mappings.keys) {
-            	stack.addFirst(incompleteLine[i])    
-            } else {
-                println(score)
-                score = calc_score(score,pointMappings.get(incompleteLine[i])!!)
+            	stack.addFirst(incompleteLine[i])
             }
         }
+    }
+    for(i in 0..stack.size-1) {
+        score = calc_score(score, pointMappings.get(stack.first())!!)
+        stack.removeFirst()
     }
     return score
 }
 
 fun calc_score(score: Int, points: Int): Int {
-    println(score)
-    var new_score = score * 5
-    new_score += points
+    var new_score = abs(score * 5)
+    new_score = new_score + points
     return new_score
 }
 
@@ -169,7 +183,6 @@ var pointMappings : HashMap<Char, Int>
     pointMappings.put('>', 25137)
     
     var stack = ArrayDeque<Char>()
-    var score = 0
     for (i in 0..givenLine.length-1) {
         if(mappings.get(stack.firstOrNull()) == givenLine[i]) {
             stack.removeFirst()
